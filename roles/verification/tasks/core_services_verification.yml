@@ -195,6 +195,9 @@
     ss -tlpn | grep $(grep -A1 'FireEdge server port' /etc/one/fireedge-server.conf | grep port: | awk '{print $2}')
   register: firedge_socket
   failed_when: "firedge_socket.rc != 0"
+  retries: 5
+  delay: 5
+  until: firedge_socket.rc == 0
 
 - name: Verify fireedge GUI listens on the server
   set_fact:
@@ -357,7 +360,7 @@
   ansible.builtin.shell: >
     oneimage list --f ID={{image_output.stdout | from_json | json_query('VMTEMPLATE.TEMPLATE.DISK.IMAGE_ID')}} -l STAT --no-header
   register: image_state
-  until: image_state.stdout == "rdy" 
+  until: image_state.stdout == "rdy" or image_state.stdout == "used"
   retries: 10
   delay: 10
 
@@ -375,7 +378,7 @@
   ansible.builtin.shell: >
     onevm list --f ID={{vm_id.stdout.split(':')[1] | trim}} -l STAT --no-header
   register: vm_state
-  failed_when: "vm_state.rc != 0"
+  failed_when: vm_state.rc != 0 or vm_state.stdout != "runn"
   until: vm_state.stdout == "runn"
   retries: 10
   delay: 10
@@ -402,6 +405,7 @@
 - name: Record connection status to test VM
   set_fact:
     verification_result: "{{ verification_result | combine({'Connection to the test VM instance' : 'ok' }) }}"
+  when: test_vm_check_connection
     
 
 - name: Delete test VM
@@ -518,11 +522,13 @@
   register: cleanup_result
   failed_when: "cleanup_result.rc != 0"
 
+# Delete test image only when it was created by us, image_state stores the state before we started using it.
 - name: Cleanup test image
   ansible.builtin.shell: |
     oneimage delete {{image_output.stdout | from_json | json_query('VMTEMPLATE.TEMPLATE.DISK.IMAGE_ID')}}
   register: cleanup_result
   failed_when: "cleanup_result.rc != 0"
+  when: image_state.stdout != "used"
   retries: 10
   delay: 10
 
