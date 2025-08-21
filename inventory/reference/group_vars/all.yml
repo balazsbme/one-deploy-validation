@@ -30,6 +30,7 @@ validation:
     iperf_port: 5201
     iperf_test_time: 10
 
+  run_conn_matrix: true
   conn_matrix:
     bridge_name: br-test
     ping_count: 10
