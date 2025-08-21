@@ -89,3 +89,14 @@
   delegate_facts: true
   run_once: true
 
+- name: Render network benchmark report
+  delegate_to: localhost
+  become: false
+  vars:
+    date: "{{ '%Y-%m-%d %H:%M:%S' | strftime(ansible_date_time.epoch) }}"
+  ansible.builtin.template:
+    src: report_template.j2
+    dest: /tmp/network_benchmark_report.html
+  ignore_errors: true
+  run_once: true
+

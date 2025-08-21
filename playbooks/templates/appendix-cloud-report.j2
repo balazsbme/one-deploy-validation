@@ -104,20 +104,5 @@ Verification Report</font></b></font></p>
 </div>
 {% endif %}
 
-{% if network_benchmark is defined %}
-<div class="table_component" role="region" tabindex="0">
- <table>
-  <tr><th colspan="3">Network Benchmarking</th></tr>
-  <tr><th>Test</th><th>Endpoints</th><th>Result</th></tr>
-  {% for p in network_benchmark.ping | default([]) %}
-  <tr><td>Ping</td><td>{{ p.source }} -> {{ p.destination }}</td><td>{{ p.latency_ms }} ms</td></tr>
-  {% endfor %}
-  {% for i in network_benchmark.iperf | default([]) %}
-  <tr><td>Iperf3</td><td>{{ i.client }} -> {{ i.server }}</td><td>{{ i.mbps }} Mbps</td></tr>
-  {% endfor %}
- </table>
-</div>
-{% endif %}
-
 </body>
 </html>

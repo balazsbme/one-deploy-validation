@@ -1,0 +1,58 @@
+<html>
+<head>
+
+</head>
+<title> Network benchmark report. Executed on {{ date }} </title>
+
+<body>
+<style>
+.table_component {
+    overflow: auto;
+    width: 100%;
+}
+
+.table_component table {
+    border: 1px solid #dededf;
+    width: 100%;
+    table-layout: fixed;
+    border-collapse: collapse;
+    border-spacing: 1px;
+    text-align: left;
+}
+
+.table_component caption {
+    caption-side: top;
+    text-align: left;
+}
+
+.table_component th {
+    border: 1px solid #dededf;
+    background-color: #eceff1;
+    color: #000000;
+        padding: 5px;
+}
+
+.table_component td {
+    border: 1px solid #dededf;
+    background-color: #ffffff;
+    color: #000000;
+        padding: 5px;
+}
+</style>
+
+<div class="table_component" role="region" tabindex="0">
+ <table>
+  <tr><th colspan="3">Network Benchmarking</th></tr>
+  <tr><th>Test</th><th>Endpoints</th><th>Result</th></tr>
+  {% for p in network_benchmark.ping | default([]) %}
+  <tr><td>Ping</td><td>{{ p.source }} -> {{ p.destination }}</td><td>{{ p.latency_ms }} ms</td></tr>
+  {% endfor %}
+  {% for i in network_benchmark.iperf | default([]) %}
+  <tr><td>Iperf3</td><td>{{ i.client }} -> {{ i.server }}</td><td>{{ i.mbps }} Mbps</td></tr>
+  {% endfor %}
+ </table>
+</div>
+<br><br><br>
+
+</body>
+</html>
