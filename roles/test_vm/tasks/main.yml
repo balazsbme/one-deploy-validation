@@ -40,10 +40,6 @@
   retries: 10
   delay: 10
 
-- name: Verify Marketplaces
-  set_fact:
-    verification_result: "{{ (verification_result | default({})) | combine({'Download a test VM template from the marketplace' : 'ok' }) }}"
-   
 # NOTE: test_vm_template_id variable is managed by a separate playbook
 - name: Instantiate test VM
   ansible.builtin.shell: >
@@ -62,7 +58,7 @@
 
 - name: Verify test VM
   set_fact:
-    verification_result: "{{ verification_result | combine({'Test VM instantiation' : 'ok' }) }}"
+    verification_result: "{{ (verification_result | default({})) | combine({'Test VM instantiation' : 'ok' }) }}"
 
 - name: Check connection to VM
   when: validation.test_vm.vm.check_connection
