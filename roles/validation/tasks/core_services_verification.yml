@@ -251,21 +251,3 @@
 - name: Get marketplace status
   debug:
     msg: "{{ marketplace_list.stdout | from_json | json_query('MARKETPLACE_POOL.MARKETPLACE') | length }}"
-
-# Prepare report 
-- name: Render report
-  delegate_to: localhost
-  become: false
-  vars:
-    date: "{{ '%Y-%m-%d %H:%M:%S' | strftime(ansible_date_time.epoch) }}"  
-  template:
-    src: appendix-cloud-report.j2 
-    dest: /tmp/cloud_verification_report.html
-  ignore_errors: True
-
-- name: Print report location
-  ansible.builtin.debug: 
-    msg: |
-      ******************************************************
-      Verification report rendered to /tmp/cloud_verification_report.html
-      ******************************************************
