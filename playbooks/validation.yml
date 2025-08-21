@@ -6,8 +6,6 @@
         _conn_matrix_bridge_name: "{{ validation.conn_matrix.bridge_name | d('br-default') }}"
         _conn_matrix_ping_count: "{{ validation.conn_matrix.ping_count | d(10) }}"
         _conn_matrix_vnet_name: "{{ validation.conn_matrix.vnet_name | d('vnet-default') }}"
-        # TODO: add a way to skip the whole conn_matrix if this is set to false. Right now it is always executed
-        execute_conn_matrix: false
 
     - name: Set playbook variables for test VM
       set_fact:

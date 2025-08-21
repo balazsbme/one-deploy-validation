@@ -13,7 +13,7 @@ validation:
       - name: opennebula-flow.service
         desc: OpenNebula flow
     check_fireedge_ui: false
-    
+
   run_storage_benchmark: false
   run_fe_ha: false
   run_network_benchmark: true
@@ -41,6 +41,7 @@ validation:
       # template_extra: |
       #   MEMORY="512"
 
+  run_conn_matrix: true
   conn_matrix:
     bridge_name: br0
     vnet_name: public
