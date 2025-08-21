@@ -26,8 +26,12 @@
 
 - name: Aggregate ping results
   ansible.builtin.set_fact:
-    network_benchmark_ping: "{{ hostvars['localhost'].network_benchmark_ping | default([]) + [{'source': inventory_hostname, 'destination': item.item, 'latency_ms': item.stdout}] }}"
+    network_benchmark_ping: "{{ network_benchmark_ping | default([]) + [{'source': inventory_hostname, 'destination': item.item, 'latency_ms': item.stdout}] }}"
   loop: "{{ ping_exec.results }}"
+
+- name: Share ping results with localhost
+  ansible.builtin.set_fact:
+    network_benchmark_ping: "{{ hostvars['localhost'].network_benchmark_ping | default([]) + (hostvars[inventory_hostname].network_benchmark_ping | default([])) }}"
   delegate_to: localhost
   delegate_facts: true
 
@@ -75,16 +79,20 @@
 
 - name: Aggregate iperf3 results
   ansible.builtin.set_fact:
-    network_benchmark_iperf: "{{ hostvars['localhost'].network_benchmark_iperf | default([]) + [{'client': inventory_hostname, 'server': item.item, 'mbps': ((item.stdout | int) / 1000000)}] }}"
+    network_benchmark_iperf: "{{ network_benchmark_iperf | default([]) + [{'client': inventory_hostname, 'server': item.item, 'mbps': ((item.stdout | int) / 1000000)}] }}"
   loop: "{{ iperf_results.results }}"
+
+- name: Share iperf3 results with localhost
+  ansible.builtin.set_fact:
+    network_benchmark_iperf: "{{ hostvars['localhost'].network_benchmark_iperf | default([]) + (hostvars[inventory_hostname].network_benchmark_iperf | default([])) }}"
   delegate_to: localhost
   delegate_facts: true
 
 - name: Combine network benchmark results
   ansible.builtin.set_fact:
     network_benchmark:
-      ping: "{{ network_benchmark_ping | default([]) }}"
-      iperf: "{{ network_benchmark_iperf | default([]) }}"
+      ping: "{{ hostvars['localhost'].network_benchmark_ping | default([]) }}"
+      iperf: "{{ hostvars['localhost'].network_benchmark_iperf | default([]) }}"
   delegate_to: localhost
   delegate_facts: true
   run_once: true
