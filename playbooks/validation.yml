@@ -85,3 +85,34 @@
     - role: fe_ha
       when: validation.run_ha_verifications == true 
 
+# Render verification report
+- hosts: localhost
+  gather_facts: false
+  become: false
+  vars:
+    verification_result: "{{ hostvars[groups[frontend_group | d('frontend')][0]].verification_result }}"
+    date: "{{ lookup('pipe', 'date +%Y-%m-%d\\ %H:%M:%S') }}"
+    validation_vars: "{{ hostvars[groups[frontend_group | d('frontend')][0]].validation | default({}) }}"
+  tasks:
+    - name: Get repository version
+      ansible.builtin.shell: |
+        git describe --tags --exact-match 2>/dev/null || git rev-parse --short HEAD
+      args:
+        chdir: "{{ playbook_dir }}/.."
+      register: repo_version_cmd
+      changed_when: false
+
+    - name: Render report
+      template:
+        src: "appendix-cloud-report.j2"
+        dest: /tmp/cloud_verification_report.html
+      vars:
+        repo_version: "{{ repo_version_cmd.stdout }}"
+
+    - name: Print report location
+      ansible.builtin.debug:
+        msg: |
+          ******************************************************
+          Verification report rendered to /tmp/cloud_verification_report.html
+          ******************************************************
+
