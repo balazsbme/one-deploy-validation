@@ -10,6 +10,10 @@
             # success when: rc == 0 or rc == 255 and 'NAME is already taken by IMAGE' in stderr
             failed_when: "vm_download.rc != 0 and (vm_download.rc != 255 or 'NAME is already taken by IMAGE' not in vm_download.stderr)"
 
+          - name: Verify VM Donwload from Marketplace
+            set_fact:
+              verification_result: "{{ (verification_result | default({})) | combine({'Download a test VM template from the marketplace' : 'ok' }) }}"
+
           # We have to check that image was downlodaded before attempting to instantiate VM
           - name: Get newly downloaded VM template ID
             ansible.builtin.shell: >
@@ -42,6 +46,10 @@
             register: update_vm_template_extra
             failed_when: update_vm_template_extra.rc != 0
             when: validation.test_vm.vm.template_extra is defined
+
+          - name: Verify VM template update
+            set_fact:
+              verification_result: "{{ (verification_result | default({})) | combine({'Updating a VM template' : 'ok' }) }}"
 
           - name: Get VM template as JSON
             ansible.builtin.shell: >
