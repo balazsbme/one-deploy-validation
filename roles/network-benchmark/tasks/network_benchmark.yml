@@ -24,6 +24,13 @@
     msg: "Ping from: {{ inventory_hostname }} to: {{ item.item }} Result: {{ item.stdout }} ms"
   loop: "{{ ping_exec.results }}"
 
+- name: Aggregate ping results
+  ansible.builtin.set_fact:
+    network_benchmark_ping: "{{ hostvars['localhost'].network_benchmark_ping | default([]) + [{'source': inventory_hostname, 'destination': item.item, 'latency_ms': item.stdout}] }}"
+  loop: "{{ ping_exec.results }}"
+  delegate_to: localhost
+  delegate_facts: true
+
 - name: Check if iperf3 server is running
   ansible.builtin.command: pgrep -f "iperf3 -s -p {{ _iperf_port }}"
   register: iperf3_check
@@ -62,7 +69,23 @@
   changed_when: iperf_killing.rc == 0
 
 - name: Show iperf3 results
-  ansible.builtin.debug: 
+  ansible.builtin.debug:
     msg: "Iperf_client: {{ inventory_hostname }} Iperf_server: {{ item.item }} Result: {{ (item.stdout | int) / 1000000 }} Mbps"
   loop: "{{ iperf_results.results }}"
+
+- name: Aggregate iperf3 results
+  ansible.builtin.set_fact:
+    network_benchmark_iperf: "{{ hostvars['localhost'].network_benchmark_iperf | default([]) + [{'client': inventory_hostname, 'server': item.item, 'mbps': ((item.stdout | int) / 1000000)}] }}"
+  loop: "{{ iperf_results.results }}"
+  delegate_to: localhost
+  delegate_facts: true
+
+- name: Combine network benchmark results
+  ansible.builtin.set_fact:
+    network_benchmark:
+      ping: "{{ network_benchmark_ping | default([]) }}"
+      iperf: "{{ network_benchmark_iperf | default([]) }}"
+  delegate_to: localhost
+  delegate_facts: true
+  run_once: true
 
