@@ -26,7 +26,7 @@ The development of the tests should be structured in [playbooks](./playbooks/) a
 
 ## Inventory/Execution
 
-1. Inventories are kept in the [inventory](./inventory/) directory, please take a look at [example.yml](./inventory/example.yml)
+1. Inventories are kept in the [inventory](./inventory/) directory, please take a look at [example.yml](./inventory/reference/example.yml)
 
 1. To execute `ansible-playbook` you can run
 
